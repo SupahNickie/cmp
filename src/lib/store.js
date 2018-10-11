@@ -1,14 +1,9 @@
-import {
-	writePublisherConsentCookie,
-	writeVendorConsentCookie,
-	readVendorConsentCookie
-} from "./cookie/cookie";
+import { writePublisherConsentCookie, writeVendorConsentCookie, readVendorConsentCookie } from "./cookie/cookie";
 import config from './config';
-import {
-	updateLocalizationSettings
-} from './localize';
-const metadata = require('../../metadata.json');
+import { updateLocalizationSettings } from './localize';
+import { initSetWithValues } from './utils';
 
+const metadata = require('../../metadata.json');
 const MAX_STANDARD_PURPOSE_ID = 24;
 const START_CUSTOM_PURPOSE_ID = 25;
 
@@ -23,11 +18,15 @@ function copyData(dataObject) {
 	const copy = {...dataObject};
 	for (let key in copy) {
 		if (copy.hasOwnProperty(key) && copy[key] instanceof Set) {
-			let set = new Set();
-			copy[key].forEach((val) => {
-				set.add(val);
-			});
-			copy[key] = set;
+			const tempSet = new Set();
+			initSetWithValues(tempSet, copy[key]);
+			copy[key] = tempSet;
+
+			// let set = new Set();
+			// copy[key].forEach((val) => {
+			// 	set.add(val);
+			// });
+			// copy[key] = set;
 		}
 	}
 	return copy;
@@ -105,15 +104,12 @@ export default class Store {
 
 		const {purposes = [], vendors = []} = vendorList;
 
+
 		// No consent will be allowed for vendors or purposes not on the list
 		const allowedVendorIds = new Set();
-		for (let i in vendors) {
-			allowedVendorIds.add(vendors[i].id);
-		}
+		initSetWithValues(allowedVendorIds, vendors, "id");
 		const allowedPurposeIds = new Set();
-		for (let j in purposes) {
-			allowedPurposeIds.add(purposes[j].id);
-		}
+		initSetWithValues(allowedPurposeIds, purposes, "id");
 
 		// Map requested vendorIds
 		const vendorMap = {};
@@ -215,9 +211,7 @@ export default class Store {
 
 		// No consent will be allowed for purposes not on the list
 		const allowedPurposeIds = new Set();
-		for (let i in purposes) {
-			allowedPurposeIds.add(purposes[i].id);
-		}
+		initSetWithValues(allowedPurposeIds, purposes, "id");
 
 		const lastCustomPurposeId = Math.max(
 			...customPurposes.map(({id}) => id),
@@ -418,13 +412,9 @@ export default class Store {
 		// If vendor consent data has never been persisted set default selected status
 		if (!created) {
 			this.vendorConsentData.selectedPurposeIds = new Set();
-			for (let i in purposes) {
-				this.vendorConsentData.selectedPurposeIds.add(purposes[i].id);
-			}
+			initSetWithValues(this.vendorConsentData.selectedPurposeIds, purposes, "id");
 			this.vendorConsentData.selectedVendorIds = new Set();
-			for (let j in vendors) {
-				this.vendorConsentData.selectedVendorIds.add(vendors[j].id);
-			}
+			initSetWithValues(this.vendorConsentData.selectedVendorIds, vendors, "id");
 		}
 
 		const {selectedVendorIds = new Set()} = this.vendorConsentData;
@@ -447,9 +437,7 @@ export default class Store {
 		if (!created) {
 			const {purposes = [],} = customPurposeList || {};
 			this.publisherConsentData.selectedCustomPurposeIds = new Set();
-			for (let i in purposes) {
-				this.publisherConsentData.selectedCustomPurposeIds.add(purposes[i].id);
-			}
+			initSetWithValues(this.publisherConsentData.selectedCustomPurposeIds, purposes, "id");
 		}
 
 		const {version = 1} = customPurposeList || {};

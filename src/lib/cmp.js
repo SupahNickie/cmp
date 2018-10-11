@@ -3,7 +3,7 @@
 import log from './log';
 import { encodeVendorConsentData, encodePublisherConsentData } from './cookie/cookie';
 import { encodeMetadataValue, decodeMetadataValue } from './cookie/cookieutils';
-import { checkReprompt, checkIfGDPRApplies } from './utils';
+import { checkReprompt, checkIfGDPRApplies, initSetWithValues } from './utils';
 
 const metadata = require('../../metadata.json');
 
@@ -268,27 +268,19 @@ export default class Cmp {
 		const { selectedCustomPurposeIds = new Set() } = persistedPublisherConsentData || {};
 
 		const allowedPurposeIds = new Set();
-		for (let i in purposes) {
-			allowedPurposeIds.add(purposes[i].id);
-		}
+		initSetWithValues(allowedPurposeIds, purposes, "id");
 
 		const allowedCustomPurposeIds = new Set();
 		if (customPurposeList) {
-			for (let j in customPurposes) {
-				allowedCustomPurposeIds.add(customPurposes[j].id);
-			}
+			initSetWithValues(allowedCustomPurposeIds, customPurposes, "id");
 		}
 
 		const selectedAllowedPurposeIds = new Set();
-		Array.from(selectedPurposeIds).filter(id => allowedPurposeIds.has(id)).forEach((id) => {
-			selectedAllowedPurposeIds.add(id);
-		});
+		initSetWithValues(selectedAllowedPurposeIds, Array.from(selectedPurposeIds).filter(id => allowedPurposeIds.has(id)));
 
 		const selectedAllowedCustomPurposeIds = new Set();
 		if (customPurposeList) {
-			Array.from(selectedCustomPurposeIds).filter(id => allowedCustomPurposeIds.has(id)).forEach((id) => {
-				selectedAllowedCustomPurposeIds.add(id);
-			});
+			initSetWithValues(selectedAllowedCustomPurposeIds, Array.from(selectedCustomPurposeIds).filter(id => allowedCustomPurposeIds.has(id)));
 		}
 
 		// Encode the persisted data
@@ -336,24 +328,15 @@ export default class Cmp {
 
 		// Filter consents by values that exist in the current vendorList
 		const allowedVendorIds = new Set();
-		for (let i in vendors) {
-			allowedVendorIds.add(vendors[i].id);
-		}
+		initSetWithValues(allowedVendorIds, vendors, "id");
 
 		const allowedPurposeIds = new Set();
-		for (let j in purposes) {
-			allowedPurposeIds.add(purposes[j].id);
-		}
+		initSetWithValues(allowedPurposeIds, purposes, "id");
 
 		const selectedAllowedVendorIds = new Set();
-		Array.from(selectedVendorIds).filter(id => allowedVendorIds.has(id)).forEach((id) => {
-			selectedAllowedVendorIds.add(id);
-		});
-
+		initSetWithValues(selectedAllowedVendorIds, Array.from(selectedVendorIds).filter(id => allowedVendorIds.has(id)));
 		const selectedAllowedPurposeIds = new Set();
-		Array.from(selectedPurposeIds).filter(id => allowedPurposeIds.has(id)).forEach((id) => {
-			selectedAllowedPurposeIds.add(id);
-		});
+		initSetWithValues(selectedAllowedPurposeIds, Array.from(selectedPurposeIds).filter(id => allowedPurposeIds.has(id)));
 
 		// Encode the persisted data
 		return persistedVendorConsentData && encodeVendorConsentData({

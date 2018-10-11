@@ -2,6 +2,7 @@
 
 import { expect } from 'chai';
 import customPurposeList from '../docs/assets/purposes.json';
+import vendorList from '../docs/assets/vendors.json';
 
 jest.mock('./utils');
 import Store from './store';
@@ -11,54 +12,6 @@ jest.setTimeout(100);
 jest.mock('./log');
 const mockLog = require('./log').default;
 
-const vendorList = {
-	"version": 1,
-	"origin": "http://ib.adnxs.com/vendors.json",
-	"purposes": [
-		{
-			"id": 1,
-			"name": "Accessing a Device or Browser"
-		},
-		{
-			"id": 2,
-			"name": "Advertising Personalisation"
-		},
-		{
-			"id": 3,
-			"name": "Analytics"
-		},
-		{
-			"id": 4,
-			"name": "Content Personalisation"
-		}
-	],
-	"vendors": [
-		{
-			"id": 1,
-			"name": "Globex"
-		},
-		{
-			"id": 2,
-			"name": "Initech"
-		},
-		{
-			"id": 3,
-			"name": "CRS"
-		},
-		{
-			"id": 4,
-			"name": "Umbrella"
-		},
-		{
-			"id": 5,
-			"name": "Aperture"
-		},
-		{
-			"id": 6,
-			"name": "Pierce and Pierce"
-		}
-	]
-};
 
 describe('cmp', () => {
 
